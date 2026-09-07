@@ -56,6 +56,8 @@ export interface BaseRecord {
   id: string;
   createdAt: string;
   updatedAt: string;
+  /** Who created it. Recorded for display only; it grants no permissions. */
+  addedBy?: string;
 }
 
 export interface Profile extends BaseRecord {
@@ -94,7 +96,6 @@ export interface ShoppingItem extends BaseRecord {
   category: Category;
   isChecked: boolean;
   checkedBy?: string;
-  addedBy?: string;
   /** Set when generated from the meal plan, so the UI can show provenance. */
   sourceRecipeId?: string;
   sourceRecipeTitle?: string;
@@ -129,7 +130,6 @@ export interface Expense extends BaseRecord {
   description: string;
   /** ISO date, YYYY-MM-DD. */
   spentAt: string;
-  addedBy?: string;
   receiptImageId?: string;
 }
 

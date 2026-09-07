@@ -1,0 +1,372 @@
+/* Shell layout. Mobile-first: content scrolls between a slim header and a
+   bottom tab bar that sits above the home indicator. */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.shell-main {
+  flex: 1;
+  padding: var(--space-5) var(--space-5) var(--space-8);
+}
+
+@media (min-width: 40rem) {
+  .shell-main {
+    padding: var(--space-7) var(--space-6) var(--space-8);
+  }
+}
+
+/* --- Login gate --- */
+
+.gate {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  min-height: 100dvh;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.gate h1 {
+  font-size: var(--text-3xl);
+  font-variation-settings: 'SOFT' 60, 'WONK' 1, 'opsz' 96;
+}
+
+/* --- Bottom tab bar --- */
+
+.tabs {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabs a {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: var(--space-2) 0;
+  text-decoration: none;
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+
+.tabs a.active {
+  color: var(--ink);
+}
+
+.tabs .tab-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.tabs a.active .tab-mark {
+  background: var(--tomat);
+}
+
+/* --- Page header --- */
+
+.page-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+/* --- Banners --- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--paper-sunk);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--text-sm);
+}
+
+/* --- Week strip --- */
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.week-nav h2 {
+  font-size: var(--text-xl);
+}
+
+/* --- Day rows: hairlines, never boxes --- */
+
+.days {
+  display: grid;
+}
+
+.day {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.day:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.day-today .day-date {
+  color: var(--tomat);
+}
+
+.day-away {
+  opacity: 0.45;
+}
+
+.day-when {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.day-name {
+  font-size: var(--text-xs);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.day-date {
+  font-family: var(--serif);
+  font-size: var(--text-xl);
+  font-variation-settings: 'SOFT' 30, 'WONK' 1;
+  line-height: 1;
+}
+
+.day-meals {
+  display: grid;
+  gap: var(--space-2);
+  align-content: center;
+  min-height: var(--tap);
+}
+
+.meal {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  text-align: left;
+  width: 100%;
+}
+
+.meal-slot {
+  flex: 0 0 auto;
+  width: 3.5rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.meal-title {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: var(--text-lg);
+  font-variation-settings: 'SOFT' 40, 'WONK' 1;
+  line-height: 1.2;
+}
+
+.meal-cooked .meal-title {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  text-decoration-color: var(--rule-strong);
+}
+
+.meal-servings {
+  flex: 0 0 auto;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+
+/* An empty day stays empty — the reference leaves cells blank on purpose. The
+   affordance keeps its 44px target but shrinks to a bare "+" once the day has
+   something in it, so a full week doesn't read as a wall of grey links. */
+.day-add {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding-right: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+}
+
+.day-add:hover {
+  color: var(--ink);
+}
+
+.day-add-bare {
+  min-height: 2rem;
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+/* --- Meal action sheet --- */
+
+.sheet-actions {
+  display: grid;
+  gap: 0;
+}
+
+.sheet-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  min-height: var(--tap);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+  font-size: var(--text-base);
+}
+
+.sheet-action-danger {
+  color: var(--tomat);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.stepper button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  font-size: var(--text-base);
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
+.stepper button:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* --- Bottom sheet --- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(26 22 18 / 40%);
+  border: 0;
+  width: 100%;
+}
+
+.sheet {
+  position: fixed;
+  z-index: 51;
+  inset: auto 0 0 0;
+  max-height: 85dvh;
+  overflow-y: auto;
+  background: var(--paper);
+  border-top: 1px solid var(--rule-strong);
+  border-radius: 12px 12px 0 0;
+  padding: var(--space-5) var(--space-5)
+    calc(var(--space-6) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 40rem) {
+  .sheet {
+    inset: auto 50% 0 auto;
+    transform: translateX(50%);
+    width: min(30rem, 100%);
+  }
+}
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.slot-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.chip {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper-raised);
+}
+
+.pick-list {
+  display: grid;
+}
+
+.pick {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+  min-height: var(--tap);
+}
+
+.pick-title {
+  font-family: var(--serif);
+  font-size: var(--text-base);
+}
+
+.empty {
+  padding: var(--space-6) 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}

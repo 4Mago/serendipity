@@ -1,0 +1,109 @@
+/*
+ * Design tokens — "botanical & painterly", per design/direction.md.
+ *
+ * Two rules underpin everything here: ink is never pure black, ground is never
+ * pure white, and colour only ever comes from produce. Named after what they
+ * came from, because that is how the references work.
+ */
+
+:root {
+  /* Ground and ink */
+  --paper: #faf6ee;
+  --paper-sunk: #f2ebdd;
+  --paper-raised: #fffdf8;
+  --ink: #2a2622;
+  --ink-soft: #6e655a;
+  --ink-faint: #9a9083;
+  --rule: #e2d9c7;
+  --rule-strong: #cdc0a8;
+
+  /* Produce */
+  --tomat: #c6443a;
+  --citrus: #de8038;
+  --arta: #7c9a52;
+  --lok: #9c4f84;
+  --hav: #4e9b9e;
+  --plommon: #6a4763;
+
+  /* Tinted grounds, for the rare filled cell */
+  --tomat-wash: #f6e3e0;
+  --citrus-wash: #f9ebdc;
+  --arta-wash: #eaefdf;
+  --lok-wash: #f2e4ee;
+  --hav-wash: #e0eeee;
+  --plommon-wash: #ece1ea;
+
+  /* Type */
+  --serif: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+
+  /* Space — a book margin, not an app gutter */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius: 2px;
+  --tap: 44px; /* iOS minimum touch target */
+
+  color-scheme: light;
+}
+
+/*
+ * Dark mode keeps the warmth. Accents lift in lightness and lose a little
+ * saturation so they sit on a dark ground without glowing.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1b1815;
+    --paper-sunk: #141210;
+    --paper-raised: #24211d;
+    --ink: #ede4d4;
+    --ink-soft: #a99e8d;
+    --ink-faint: #7c7365;
+    --rule: #332e28;
+    --rule-strong: #4a433a;
+
+    --tomat: #e0705f;
+    --citrus: #e79a5c;
+    --arta: #9fbb74;
+    --lok: #c078a8;
+    --hav: #6fb9bb;
+    --plommon: #a07a99;
+
+    --tomat-wash: #33221f;
+    --citrus-wash: #33271c;
+    --arta-wash: #262d1e;
+    --lok-wash: #2f2029;
+    --hav-wash: #1c2c2c;
+    --plommon-wash: #2a2029;
+
+    color-scheme: dark;
+  }
+}
+
+/* Category colours, used consistently everywhere a category appears. */
+:root {
+  --cat-produce: var(--arta);
+  --cat-dairy: var(--lok);
+  --cat-meat: var(--tomat);
+  --cat-fish: var(--hav);
+  --cat-frozen: var(--hav);
+  --cat-bakery: var(--citrus);
+  --cat-pantry: var(--plommon);
+  --cat-drinks: var(--hav);
+  --cat-household: var(--ink-soft);
+  --cat-other: var(--ink-faint);
+}

@@ -1,26 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { useMutationState } from '@tanstack/react-query';
+import MealPlan from './routes/MealPlan';
+import Diagnostics from './routes/Diagnostics';
 import { useChangePolling } from './lib/hooks';
 import { currentUser, logout, onAuthChange, openLogin } from './lib/identity';
 import { setupServiceWorker } from './lib/pwa';
-import Diagnostics from './routes/Diagnostics';
 
-/**
- * Phase A shell: deliberately unstyled. It exists to prove auth, routing,
- * polling and the offline queue work end to end. The real design lands in
- * Phase B, once reference images are in.
- */
-
-const SECTIONS = [
-  { path: '/', label: 'Veckan' },
-  { path: '/meals', label: 'Matsedel' },
+/** Five is the most a bottom bar can hold before targets get too small. */
+const TABS = [
+  { path: '/', label: 'Matsedel' },
   { path: '/shopping', label: 'Inköp' },
   { path: '/recipes', label: 'Recept' },
   { path: '/expenses', label: 'Utgifter' },
-  { path: '/errands', label: 'Sysslor' },
-  { path: '/schedule', label: 'Kalender' },
-  { path: '/apartment', label: 'Hemmet' },
+  { path: '/more', label: 'Mer' },
 ];
 
 export default function App() {
@@ -34,8 +27,8 @@ export default function App() {
     return (
       <main className="gate">
         <h1>Hemma</h1>
-        <p>Marcus &amp; Clara</p>
-        <button type="button" onClick={openLogin}>
+        <p className="label">Marcus &amp; Clara</p>
+        <button type="button" className="btn" onClick={openLogin}>
           Logga in
         </button>
       </main>
@@ -43,11 +36,11 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="shell">
       {applyUpdate && (
         <div className="banner">
-          En ny version finns.{' '}
-          <button type="button" onClick={applyUpdate}>
+          <span>En ny version finns.</span>
+          <button type="button" className="btn-plain" onClick={applyUpdate}>
             Uppdatera
           </button>
         </div>
@@ -55,21 +48,13 @@ export default function App() {
 
       <SyncStatus />
 
-      <nav className="nav">
-        {SECTIONS.map((section) => (
-          <NavLink key={section.path} to={section.path} end={section.path === '/'}>
-            {section.label}
-          </NavLink>
-        ))}
-      </nav>
-
-      <main className="main">
+      <main className="shell-main">
         <Routes>
-          <Route path="/" element={<Placeholder title="Veckan" />} />
-          <Route path="/meals" element={<Placeholder title="Matsedel" />} />
+          <Route path="/" element={<MealPlan />} />
           <Route path="/shopping" element={<Placeholder title="Inköp" />} />
           <Route path="/recipes" element={<Placeholder title="Recept" />} />
           <Route path="/expenses" element={<Placeholder title="Utgifter" />} />
+          <Route path="/more" element={<More />} />
           <Route path="/errands" element={<Placeholder title="Sysslor" />} />
           <Route path="/schedule" element={<Placeholder title="Kalender" />} />
           <Route path="/apartment" element={<Placeholder title="Hemmet" />} />
@@ -78,12 +63,14 @@ export default function App() {
         </Routes>
       </main>
 
-      <footer className="footer">
-        <Link to="/diagnostics">Diagnostik</Link>
-        <button type="button" onClick={logout}>
-          Logga ut
-        </button>
-      </footer>
+      <nav className="tabs">
+        {TABS.map((tab) => (
+          <NavLink key={tab.path} to={tab.path} end={tab.path === '/'}>
+            <span className="tab-mark" />
+            {tab.label}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }
@@ -109,16 +96,50 @@ function SyncStatus() {
 
   return (
     <div className="banner" role="status">
-      {online ? `Synkar ${pending.length} ändringar…` : 'Offline — ändringar sparas och skickas sen'}
+      <span>
+        {online
+          ? `Synkar ${pending.length} ändringar…`
+          : 'Offline — ändringar sparas och skickas när du är uppkopplad'}
+      </span>
     </div>
+  );
+}
+
+function More() {
+  return (
+    <section>
+      <div className="page-head">
+        <h2>Mer</h2>
+      </div>
+      <div className="pick-list">
+        {[
+          { to: '/errands', label: 'Sysslor' },
+          { to: '/schedule', label: 'Kalender' },
+          { to: '/apartment', label: 'Hemmet' },
+          { to: '/diagnostics', label: 'Diagnostik' },
+        ].map((item) => (
+          <Link key={item.to} to={item.to} className="pick">
+            <span className="pick-title">{item.label}</span>
+            <span className="faint">→</span>
+          </Link>
+        ))}
+      </div>
+      <div className="actions">
+        <button type="button" className="btn" onClick={logout}>
+          Logga ut
+        </button>
+      </div>
+    </section>
   );
 }
 
 function Placeholder({ title }: { title: string }) {
   return (
     <section>
-      <h2>{title}</h2>
-      <p className="muted">Byggs i fas B, när formgivningen är på plats.</p>
+      <div className="page-head">
+        <h2>{title}</h2>
+      </div>
+      <p className="empty">Byggs härnäst.</p>
     </section>
   );
 }
