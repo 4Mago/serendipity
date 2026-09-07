@@ -85,6 +85,17 @@ export default function Apartment() {
                   </button>
 
                   <span className="wish-meta">
+                    {item.url && (
+                      <a
+                        className="wish-link"
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Länk
+                      </a>
+                    )}
                     <span className="faint">
                       {item.room ? `${item.room} · ` : ''}
                       {both

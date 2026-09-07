@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react';
 import { CATEGORIES, CATEGORY_ORDER, type Category, type ShoppingItem } from '../domain/types';
 import { formatQuantity } from '../domain/units';
 import { useCollection, useCreate, useRemove, useUpdate } from '../lib/hooks';
+import { parseToMinor } from '../domain/money';
+import { todayIso } from '../domain/dates';
+import type { Expense, ExpenseCategory } from '../domain/types';
 import Sheet from '../components/Sheet';
 
 const CATEGORY_NAMES: Record<Category, string> = {
@@ -25,6 +28,7 @@ export default function Shopping() {
 
   const [draft, setDraft] = useState('');
   const [editing, setEditing] = useState<ShoppingItem | null>(null);
+  const [finishing, setFinishing] = useState(false);
 
   /* Grouped by aisle rather than by when it was added — the list is walked, not read. */
   const { aisles, done } = useMemo(() => {
@@ -90,9 +94,7 @@ export default function Shopping() {
 
       {aisles.map(([category, list]) => (
         <div key={category} className="aisle">
-          <p className="label aisle-name" style={{ color: `var(--cat-${category})` }}>
-            {CATEGORY_NAMES[category]}
-          </p>
+          <p className="label aisle-name">{CATEGORY_NAMES[category]}</p>
           <ul>
             {list.map((item) => (
               <li key={item.id} className="buy">
@@ -102,7 +104,7 @@ export default function Shopping() {
                   onClick={() => update.mutate({ id: item.id, patch: { isChecked: true } })}
                   aria-label={`Bocka av ${item.name}`}
                 >
-                  <span className="tick-ring" style={{ borderColor: `var(--cat-${category})` }} />
+                  <span className="tick-ring" />
                 </button>
                 <button type="button" className="buy-body" onClick={() => setEditing(item)}>
                   <span className="buy-name">{item.name}</span>
@@ -147,6 +149,25 @@ export default function Shopping() {
             ))}
           </ul>
         </div>
+      )}
+
+      {done.length > 0 && (
+        <div className="actions">
+          <button type="button" className="btn" onClick={() => setFinishing(true)}>
+            Klar med handlingen
+          </button>
+        </div>
+      )}
+
+      {finishing && (
+        <FinishShop
+          count={done.length}
+          onClose={() => setFinishing(false)}
+          onDone={() => {
+            clearDone();
+            setFinishing(false);
+          }}
+        />
       )}
 
       {editing && (
@@ -238,6 +259,117 @@ function EditItem({ item, onClose, onPatch, onRemove }: EditItemProps) {
         </button>
         <button type="button" className="btn-plain sheet-action-danger" onClick={onRemove}>
           Ta bort
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
+/**
+ * The end of a shopping trip is the one moment the total is actually known, so
+ * this is where an expense gets logged — otherwise the budget only ever gets
+ * filled in from memory, days later.
+ */
+function FinishShop({
+  count,
+  onClose,
+  onDone,
+}: {
+  count: number;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const categories = useCollection('categories');
+  const createExpense = useCreate('expenses');
+  const createCategory = useCreate('categories');
+
+  const [amount, setAmount] = useState('');
+  const [where, setWhere] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const finish = async (withExpense: boolean) => {
+    if (!withExpense) {
+      onDone();
+      return;
+    }
+
+    const amountMinor = parseToMinor(amount);
+    if (amountMinor === null || amountMinor <= 0) {
+      setError('Skriv summan på kvittot, t.ex. 842,50');
+      return;
+    }
+
+    let finalCategory = categoryId;
+    if (!finalCategory) {
+      /* Almost every shop is food; make that the path of least resistance. */
+      const existing = categories.data?.find((candidate) => candidate.name === 'Mat');
+      finalCategory =
+        existing?.id ??
+        (await createCategory.mutateAsync({ name: 'Mat' } as Partial<ExpenseCategory>)).id;
+    }
+
+    createExpense.mutate({
+      amountMinor,
+      description: where.trim() || 'Handling',
+      categoryId: finalCategory,
+      spentAt: todayIso(),
+    } as Partial<Expense>);
+
+    onDone();
+  };
+
+  return (
+    <Sheet title="Klar med handlingen" onClose={onClose}>
+      <p className="hint faint">
+        {count} {count === 1 ? 'vara' : 'varor'} tas bort från listan. Vill du samtidigt bokföra
+        vad det kostade?
+      </p>
+
+      <div className="field">
+        <label className="label" htmlFor="s-amount">Summa på kvittot</label>
+        <input
+          id="s-amount"
+          inputMode="decimal"
+          value={amount}
+          onChange={(event) => {
+            setAmount(event.target.value);
+            setError(null);
+          }}
+          placeholder="842,50"
+          autoFocus
+        />
+        {error && <p className="hint sheet-action-danger">{error}</p>}
+      </div>
+
+      <div className="field">
+        <label className="label" htmlFor="s-where">Var</label>
+        <input
+          id="s-where"
+          value={where}
+          onChange={(event) => setWhere(event.target.value)}
+          placeholder="ICA"
+        />
+      </div>
+
+      <div className="field">
+        <label className="label" htmlFor="s-cat">Kategori</label>
+        <select id="s-cat" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+          <option value="">Mat</option>
+          {(categories.data ?? []).map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="actions">
+        <button type="button" className="btn" onClick={() => void finish(true)}>
+          Bokför och rensa
+        </button>
+        <button type="button" className="btn-plain" onClick={() => void finish(false)}>
+          Bara rensa
         </button>
       </div>
     </Sheet>

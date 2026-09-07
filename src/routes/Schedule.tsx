@@ -13,14 +13,12 @@ const TYPE_NAMES: Record<EventType, string> = {
   other: 'Övrigt',
 };
 
-/* Reinforcement beside a text label, never the sole encoding. */
-const TYPE_COLOUR: Record<EventType, string> = {
-  gym: 'var(--arta)',
-  travel: 'var(--hav)',
-  social: 'var(--citrus)',
-  appointment: 'var(--lok)',
-  other: 'var(--ink-faint)',
-};
+/*
+ * Travel is the one type that changes behaviour elsewhere — it dims those days
+ * in the meal planner — so it alone gets a filled marker. Every other type is
+ * told apart by its name, which is printed beside it.
+ */
+const MARKED: EventType = 'travel';
 
 export default function Schedule() {
   const [month, setMonth] = useState(() => monthKey(todayIso()));
@@ -71,7 +69,7 @@ export default function Schedule() {
             <div className="day-meals">
               {list.map((event) => (
                 <div key={event.id} className="meal">
-                  <span className="event-dot" style={{ background: TYPE_COLOUR[event.type] }} />
+                  <span className={`event-dot${event.type === MARKED ? ' event-dot-travel' : ''}`} />
                   <span className="meal-title">{event.title}</span>
                   <span className="meal-servings">{TYPE_NAMES[event.type]}</span>
                   <button type="button" className="btn-plain" onClick={() => remove.mutate(event.id)} aria-label="Ta bort">

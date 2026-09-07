@@ -8,7 +8,7 @@ import Expenses from './routes/Expenses';
 import Errands from './routes/Errands';
 import Schedule from './routes/Schedule';
 import Apartment from './routes/Apartment';
-import Diagnostics from './routes/Diagnostics';
+import History from './routes/History';
 import { useChangePolling } from './lib/hooks';
 import { HOUSEHOLD, type Person } from './domain/household';
 import { clearWhoami, getWhoami, setWhoami } from './lib/whoami';
@@ -93,7 +93,7 @@ export default function App() {
           <Route path="/errands" element={<Errands />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/apartment" element={<Apartment />} />
-          <Route path="/diagnostics" element={<Diagnostics />} />
+          <Route path="/history" element={<History />} />
           <Route path="*" element={<Placeholder title="Hittades inte" />} />
         </Routes>
       </main>
@@ -152,7 +152,7 @@ function More({ person, onSwitch }: { person: Person; onSwitch: () => void }) {
           { to: '/errands', label: 'Sysslor' },
           { to: '/schedule', label: 'Kalender' },
           { to: '/apartment', label: 'Hemmet' },
-          { to: '/diagnostics', label: 'Diagnostik' },
+          { to: '/history', label: 'Vad vi ätit' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="pick">
             <span className="pick-title">{item.label}</span>

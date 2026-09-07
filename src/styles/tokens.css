@@ -94,16 +94,37 @@
   }
 }
 
-/* Category colours, used consistently everywhere a category appears. */
+/*
+ * Chart palette — the only colours in the app that ENCODE anything.
+ *
+ * Validated with the categorical six-checks against both surfaces, all pairs
+ * (not merely adjacent ones):
+ *
+ *   light #FAF6EE  clean pass, no warnings
+ *   dark  #1B1815  pass, with one contrast warning (--chart-1 at 2.99:1)
+ *
+ * Three is the ceiling, not a stylistic choice. A fourth hue fails whatever it
+ * is: blue↔violet collapses to ΔE 2.0 under deuteranopia, green↔amber to ΔE
+ * 1.7 under protanopia. The interface accents above are far too muted to
+ * encode with — they failed the chroma floor outright — so they stay
+ * decorative and every colour-carried distinction uses these three.
+ *
+ * The dark contrast warning is answered the way the check requires: every
+ * chart in this app carries direct labels and is backed by a table.
+ */
 :root {
-  --cat-produce: var(--arta);
-  --cat-dairy: var(--lok);
-  --cat-meat: var(--tomat);
-  --cat-fish: var(--hav);
-  --cat-frozen: var(--hav);
-  --cat-bakery: var(--citrus);
-  --cat-pantry: var(--plommon);
-  --cat-drinks: var(--hav);
-  --cat-household: var(--ink-soft);
-  --cat-other: var(--ink-faint);
+  --chart-1: #b33a2b;
+  --chart-2: #1273a8;
+  --chart-3: #c97b14;
+  --chart-rest: var(--ink-faint);
+
+  /* Status, reserved. Never reused as a series colour. */
+  --status-danger: var(--tomat);
 }
+
+/*
+ * Categories and event types are NOT colour-coded. There are ten aisles and
+ * five event types; no palette can keep that many mutually distinguishable, so
+ * their identity is carried by the text label that is always beside them —
+ * which is also how the botanical references tell things apart.
+ */

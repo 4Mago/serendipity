@@ -75,3 +75,29 @@ export function weekDates(isoDate: string): string[] {
   const monday = startOfWeekIso(isoDate);
   return Array.from({ length: 7 }, (_, index) => addDaysIso(monday, index));
 }
+
+/** Clamps to the last day of the target month, so 31 Jan + 1 month is 28/29 Feb. */
+export function addMonthsIso(isoDate: string, months: number): string {
+  const [year, month, day] = isoDate.slice(0, 10).split('-').map(Number);
+  const target = new Date(year, month - 1 + months, 1);
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  target.setDate(Math.min(day, lastDay));
+  return todayIso(target);
+}
+
+/** The next occurrence of a recurring item, or null if it does not recur. */
+export function nextOccurrence(
+  from: string,
+  recurrence: 'none' | 'daily' | 'weekly' | 'monthly' | undefined,
+): string | null {
+  switch (recurrence) {
+    case 'daily':
+      return addDaysIso(from, 1);
+    case 'weekly':
+      return addDaysIso(from, 7);
+    case 'monthly':
+      return addMonthsIso(from, 1);
+    default:
+      return null;
+  }
+}

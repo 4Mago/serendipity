@@ -102,6 +102,17 @@ shopping list.
 **Money is integer öre.** Never a float. Swedish formatting throughout, where
 the comma is a decimal separator and thousands are grouped with spaces.
 
+**Colour never carries meaning alone.** The interface accents are deliberately
+muted and fail a categorical colour-vision check outright — two of them do not
+even clear the chroma floor. So they stay decorative, and everything that
+actually encodes uses `--chart-1/2/3` in `tokens.css`: a triad validated
+against both surfaces across *all* pairs, not merely adjacent ones. Three is
+the ceiling — a fourth hue collapses somewhere no matter which one it is
+(blue↔violet reaches ΔE 2.0 under deuteranopia, green↔amber ΔE 1.7 under
+protanopia). Ten shopping aisles and five event types are therefore not
+colour-coded at all; their labels carry them. Over-budget is drawn as a
+texture *and* stated in words.
+
 ## Known follow-ups
 
 - **Add a gate before deploying publicly** — see the security note above.

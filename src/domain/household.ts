@@ -7,13 +7,17 @@
 export interface Person {
   id: string;
   name: string;
-  /** One of the produce accents, used consistently wherever the person appears. */
+  /**
+   * One of the validated chart hues, so the two are distinguishable under
+   * every colour-vision deficiency. Always shown alongside the initial, so
+   * colour is never the only cue.
+   */
   colour: string;
 }
 
 export const HOUSEHOLD: Person[] = [
-  { id: 'marcus', name: 'Marcus', colour: 'var(--hav)' },
-  { id: 'clara', name: 'Clara', colour: 'var(--lok)' },
+  { id: 'marcus', name: 'Marcus', colour: 'var(--chart-2)' },
+  { id: 'clara', name: 'Clara', colour: 'var(--chart-1)' },
 ];
 
 export function personById(id: string | undefined): Person | undefined {

@@ -3,7 +3,7 @@ import Sheet from '../components/Sheet';
 import { monthKey, todayIso } from '../domain/dates';
 import { formatMinor, formatMinorRounded, parseToMinor, sumMinor } from '../domain/money';
 import type { Expense, ExpenseCategory } from '../domain/types';
-import { useCollection, useCreate, useRemove } from '../lib/hooks';
+import { useCollection, useCreate, useRemove, useUpdate } from '../lib/hooks';
 
 const MONTH_NAMES = [
   'januari', 'februari', 'mars', 'april', 'maj', 'juni',
@@ -29,6 +29,7 @@ function daysInMonth(month: string): number {
 export default function Expenses() {
   const [month, setMonth] = useState(() => monthKey(todayIso()));
   const [adding, setAdding] = useState(false);
+  const [budgeting, setBudgeting] = useState(false);
 
   const expenses = useCollection('expenses', { month });
   const categories = useCollection('categories');
@@ -63,6 +64,16 @@ export default function Expenses() {
 
   const largest = byCategory[0]?.[1] ?? 0;
 
+  /*
+   * Only the three largest categories get a hue, because three is the most
+   * that stay mutually distinguishable under every colour-vision deficiency —
+   * see the note on --chart-* in tokens.css. Everything below folds into a
+   * neutral, and every bar is labelled with its name and value regardless, so
+   * nothing here depends on colour being seen at all.
+   */
+  const hueFor = (rank: number): string =>
+    rank < 3 ? `var(--chart-${rank + 1})` : 'var(--chart-rest)';
+
   /* Daily totals, for the change-over-time strip. */
   const daily = useMemo(() => {
     const count = daysInMonth(month);
@@ -89,7 +100,9 @@ export default function Expenses() {
       </div>
 
       <p className="hero tabular">{formatMinorRounded(total)}</p>
-      <p className="label hero-note">{rows.length} utgifter</p>
+      <p className="label hero-note">
+        {rows.length} {rows.length === 1 ? 'utgift' : 'utgifter'}
+      </p>
 
       {rows.length > 0 && (
         <>
@@ -110,7 +123,7 @@ export default function Expenses() {
 
           <p className="label section-label">Per kategori</p>
           <ul className="bars">
-            {byCategory.map(([name, amount]) => {
+            {byCategory.map(([name, amount], rank) => {
               const budget = categories.data?.find((candidate) => candidate.name === name)
                 ?.monthlyBudgetMinor;
               return (
@@ -125,9 +138,15 @@ export default function Expenses() {
                   <div className="bar-track">
                     <div
                       className={`bar-fill${budget && amount > budget ? ' bar-over' : ''}`}
-                      style={{ width: `${largest === 0 ? 0 : (amount / largest) * 100}%` }}
+                      style={{
+                        width: `${largest === 0 ? 0 : (amount / largest) * 100}%`,
+                        '--bar-colour': hueFor(rank),
+                      } as React.CSSProperties}
                     />
                   </div>
+                  {budget && amount > budget && (
+                    <p className="over-note">Över budget med {formatMinorRounded(amount - budget)}</p>
+                  )}
                 </li>
               );
             })}
@@ -138,6 +157,9 @@ export default function Expenses() {
       <div className="actions">
         <button type="button" className="btn" onClick={() => setAdding(true)}>
           + Ny utgift
+        </button>
+        <button type="button" className="btn-plain" onClick={() => setBudgeting(true)}>
+          Budgetar
         </button>
       </div>
 
@@ -162,6 +184,10 @@ export default function Expenses() {
         </ul>
       )}
 
+      {budgeting && (
+        <Budgets categories={categories.data ?? []} onClose={() => setBudgeting(false)} />
+      )}
+
       {adding && (
         <AddExpense
           month={month}
@@ -170,6 +196,72 @@ export default function Expenses() {
         />
       )}
     </section>
+  );
+}
+
+/**
+ * A budget is what turns the category bars from a record into a warning, so
+ * setting one is kept a single tap from the chart it affects.
+ */
+function Budgets({
+  categories,
+  onClose,
+}: {
+  categories: ExpenseCategory[];
+  onClose: () => void;
+}) {
+  const update = useUpdate('categories');
+  const [drafts, setDrafts] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      categories.map((category) => [
+        category.id,
+        category.monthlyBudgetMinor ? String(category.monthlyBudgetMinor / 100) : '',
+      ]),
+    ),
+  );
+
+  const save = () => {
+    for (const category of categories) {
+      const raw = drafts[category.id] ?? '';
+      const parsed = raw.trim() === '' ? undefined : (parseToMinor(raw) ?? undefined);
+      if (parsed !== category.monthlyBudgetMinor) {
+        update.mutate({ id: category.id, patch: { monthlyBudgetMinor: parsed } });
+      }
+    }
+    onClose();
+  };
+
+  return (
+    <Sheet title="Budget per månad" onClose={onClose}>
+      {categories.length === 0 ? (
+        <p className="empty">Inga kategorier än. De skapas när du bokför en utgift.</p>
+      ) : (
+        <>
+          <p className="hint faint">Lämna tomt för ingen budget.</p>
+          {categories.map((category) => (
+            <div className="field" key={category.id}>
+              <label className="label" htmlFor={`b-${category.id}`}>
+                {category.name}
+              </label>
+              <input
+                id={`b-${category.id}`}
+                inputMode="decimal"
+                value={drafts[category.id] ?? ''}
+                onChange={(event) =>
+                  setDrafts((current) => ({ ...current, [category.id]: event.target.value }))
+                }
+                placeholder="4 000"
+              />
+            </div>
+          ))}
+          <div className="actions">
+            <button type="button" className="btn" onClick={save}>
+              Spara
+            </button>
+          </div>
+        </>
+      )}
+    </Sheet>
   );
 }
 
@@ -207,7 +299,6 @@ function AddExpense({
     if (newCategory.trim()) {
       const created = await createCategory.mutateAsync({
         name: newCategory.trim(),
-        colour: 'var(--tomat)',
       } as Partial<ExpenseCategory>);
       finalCategory = created.id;
     }

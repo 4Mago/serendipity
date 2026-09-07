@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDaysIso,
+  addMonthsIso,
   isValidMonthKey,
+  nextOccurrence,
   monthKey,
   monthsInRange,
   startOfWeekIso,
@@ -87,5 +89,27 @@ describe('week helpers', () => {
 
   it('formats a local date without UTC drift', () => {
     expect(todayIso(new Date(2026, 8, 14))).toBe('2026-09-14');
+  });
+});
+
+describe('recurrence', () => {
+  it('advances by day, week and month', () => {
+    expect(nextOccurrence('2026-09-14', 'daily')).toBe('2026-09-15');
+    expect(nextOccurrence('2026-09-14', 'weekly')).toBe('2026-09-21');
+    expect(nextOccurrence('2026-09-14', 'monthly')).toBe('2026-10-14');
+  });
+
+  it('clamps a month step to the last valid day', () => {
+    expect(addMonthsIso('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonthsIso('2028-01-31', 1)).toBe('2028-02-29');
+  });
+
+  it('crosses a year boundary', () => {
+    expect(addMonthsIso('2026-12-15', 1)).toBe('2027-01-15');
+  });
+
+  it('returns nothing for a one-off', () => {
+    expect(nextOccurrence('2026-09-14', 'none')).toBeNull();
+    expect(nextOccurrence('2026-09-14', undefined)).toBeNull();
   });
 });

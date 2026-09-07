@@ -1,13 +1,16 @@
 /**
- * Placeholder PWA icons. The manifest must point at real files for the install
- * prompt to appear, and the visual design is still pending — so these draw a
- * simple plate motif in neutral colours and get replaced in Phase B.
+ * PWA icons, drawn to match the botanical direction: a cut fruit on paper, the
+ * way the references show produce as the only graphic element on a plain
+ * ground. Rendered by hand into a PNG rather than pulled from a library so the
+ * build stays dependency-free.
  */
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const BACKGROUND = [0x2f, 0x3a, 0x36];
-const PLATE = [0xf2, 0xef, 0xe6];
+const PAPER = [0xfa, 0xf6, 0xee];
+const FLESH = [0xc6, 0x44, 0x3a];
+const RIND = [0x4f, 0x8a, 0x2a];
+const SEED = [0x2a, 0x26, 0x22];
 
 function crc32(buffer) {
   let crc = ~0;
@@ -29,11 +32,19 @@ function chunk(type, data) {
   return Buffer.concat([length, body, crc]);
 }
 
+/** Seeds scattered the way they sit in a cut tomato: a ring, slightly uneven. */
+const SEEDS = [
+  [0.0, -0.52], [0.45, -0.26], [0.45, 0.26],
+  [0.0, 0.52], [-0.45, 0.26], [-0.45, -0.26],
+];
+
 function png(size, { maskable }) {
-  // Maskable icons must keep their content inside a safe zone, since the OS
-  // crops them to whatever shape it likes.
-  const radius = size * (maskable ? 0.28 : 0.34);
+  // Maskable icons are cropped to whatever shape the OS likes, so the fruit
+  // shrinks to stay inside the safe zone.
+  const radius = size * (maskable ? 0.28 : 0.36);
   const centre = size / 2;
+  const rindWidth = radius * 0.09;
+  const seedRadius = radius * 0.075;
   const rows = [];
 
   for (let y = 0; y < size; y++) {
@@ -41,7 +52,25 @@ function png(size, { maskable }) {
     for (let x = 0; x < size; x++) {
       const dx = x + 0.5 - centre;
       const dy = y + 0.5 - centre;
-      const colour = dx * dx + dy * dy <= radius * radius ? PLATE : BACKGROUND;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      let colour = PAPER;
+      if (distance <= radius) {
+        colour = distance > radius - rindWidth ? RIND : FLESH;
+
+        // Seeds sit in the flesh, never over the rind.
+        if (distance <= radius - rindWidth) {
+          for (const [sx, sy] of SEEDS) {
+            const seedDx = dx - sx * radius;
+            const seedDy = dy - sy * radius;
+            if (seedDx * seedDx + seedDy * seedDy <= seedRadius * seedRadius) {
+              colour = SEED;
+              break;
+            }
+          }
+        }
+      }
+
       row.set(colour, 1 + x * 3);
     }
     rows.push(row);
@@ -66,4 +95,4 @@ writeFileSync('public/icons/icon-192.png', png(192, { maskable: false }));
 writeFileSync('public/icons/icon-512.png', png(512, { maskable: false }));
 writeFileSync('public/icons/icon-512-maskable.png', png(512, { maskable: true }));
 writeFileSync('public/apple-touch-icon.png', png(180, { maskable: false }));
-console.log('Wrote placeholder icons to public/icons/');
+console.log('Wrote icons to public/icons/');

@@ -118,7 +118,6 @@ export interface MealEntry extends BaseRecord {
 
 export interface ExpenseCategory extends BaseRecord {
   name: string;
-  colour: string;
   icon?: string;
   monthlyBudgetMinor?: number;
 }
