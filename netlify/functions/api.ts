@@ -22,7 +22,17 @@ export default async (request: Request): Promise<Response> => {
   try {
     const user = readAuthor(request);
     const url = new URL(request.url);
-    const segments = url.pathname.replace(/^\/api\/?/, '').split('/').filter(Boolean);
+    /*
+     * Requests arrive either at /api/* (via this function's `config.path`) or
+     * at /.netlify/functions/api/* (via the redirect in netlify.toml). Strip
+     * whichever prefix is present so routing does not depend on which path
+     * Netlify happened to use.
+     */
+    const segments = url.pathname
+      .replace(/^\/\.netlify\/functions\/api\/?/, '')
+      .replace(/^\/api\/?/, '')
+      .split('/')
+      .filter(Boolean);
 
     // Literal routes are matched before the generic collection routes, so a
     // collection can never shadow them.

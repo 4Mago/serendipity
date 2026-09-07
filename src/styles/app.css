@@ -400,3 +400,372 @@
   border-radius: 50%;
   background: var(--who-colour, var(--ink-faint));
 }
+
+/* --- Inline add row --- */
+
+.add-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* --- Grouped lists (aisles, statuses) --- */
+
+.aisle {
+  margin-top: var(--space-5);
+}
+
+.aisle-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.aisle-name {
+  margin-bottom: var(--space-2);
+}
+
+/* --- Tickable rows --- */
+
+.buy {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-top: 1px solid var(--rule);
+  min-height: var(--tap);
+}
+
+/* A wishlist row carries too much for one line on a phone — name and actions
+   on top, the details underneath. */
+.wish {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    'name heart remove'
+    'meta meta meta';
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.wish-name {
+  grid-area: name;
+  text-align: left;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+
+.wish-heart {
+  grid-area: heart;
+}
+
+.wish-remove {
+  grid-area: remove;
+}
+
+.wish-meta {
+  grid-area: meta;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  padding-bottom: var(--space-2);
+}
+
+.wish-meta .faint {
+  flex: 1;
+  min-width: 0;
+}
+
+.wish-cost {
+  flex: 0 0 auto;
+  color: var(--ink-soft);
+}
+
+.buy-tick {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  margin-left: calc(var(--space-3) * -1);
+}
+
+.tick-ring {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.tick-filled {
+  background: var(--ink-faint);
+  border-color: var(--ink-faint);
+}
+
+.buy-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-align: left;
+  padding: var(--space-2) 0;
+}
+
+.buy-name {
+  font-family: var(--serif);
+  font-size: var(--text-base);
+  line-height: 1.25;
+}
+
+.buy-source {
+  font-size: var(--text-xs);
+}
+
+.buy-qty {
+  flex: 0 0 auto;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.buy-done .buy-name {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--rule-strong);
+}
+
+/* --- Person chips --- */
+
+.who-cycle {
+  display: flex;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+}
+
+.who-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+
+.who-chip[aria-pressed='true'],
+.who-chip[data-voted='true'] {
+  border-color: var(--who-colour);
+  color: var(--who-colour);
+}
+
+/* --- Form fields --- */
+
+.field {
+  margin-bottom: var(--space-4);
+}
+
+.field .label {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.field-row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-end;
+}
+
+.field-row .field {
+  flex: 1;
+}
+
+.field-inline {
+  display: flex;
+  align-items: center;
+}
+
+.hint {
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-3);
+}
+
+.section-label {
+  margin: var(--space-5) 0 var(--space-2);
+}
+
+textarea {
+  resize: vertical;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+select {
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+/* --- Ingredient editor --- */
+
+.ing-row {
+  display: grid;
+  grid-template-columns: 1fr 3.5rem 4rem;
+  grid-template-areas: 'name qty unit' 'cat cat remove';
+  gap: var(--space-2) var(--space-3);
+  align-items: end;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ing-row > :nth-child(1) { grid-area: name; }
+.ing-row > :nth-child(2) { grid-area: qty; }
+.ing-row > :nth-child(3) { grid-area: unit; }
+.ing-row > :nth-child(4) { grid-area: cat; }
+.ing-row > :nth-child(5) { grid-area: remove; justify-self: end; }
+
+/* --- Expenses --- */
+
+.hero {
+  font-family: var(--serif);
+  font-size: var(--text-3xl);
+  font-variation-settings: 'SOFT' 30, 'WONK' 1;
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.hero-note {
+  margin-bottom: var(--space-5);
+}
+
+/* Daily totals. A bare strip: no axis furniture, values live in the ledger. */
+.daily-strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 56px;
+  margin-bottom: var(--space-1);
+}
+
+.daily-bar {
+  flex: 1;
+  min-width: 0;
+  background: var(--tomat);
+  opacity: 0.75;
+  border-radius: 2px 2px 0 0;
+}
+
+.strip-axis {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--rule);
+  padding-top: var(--space-1);
+}
+
+/* Category bars. One hue — identity is carried by the label beside each bar,
+   never by colour, because the interface palette fails CVD separation as a
+   categorical scale. */
+.bars {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.bar-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.bar-name {
+  font-size: var(--text-sm);
+}
+
+.bar-value {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.bar-track {
+  height: 8px;
+  background: var(--paper-sunk);
+  border-radius: 4px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--tomat);
+  border-radius: 4px;
+  min-width: 4px;
+}
+
+.bar-over {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tomat) 0 6px,
+    var(--citrus) 6px 12px
+  );
+}
+
+/* --- Ledger --- */
+
+.ledger {
+  display: grid;
+}
+
+.ledger-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--rule);
+  min-height: var(--tap);
+}
+
+.ledger-date {
+  flex: 0 0 3rem;
+}
+
+.ledger-what {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: var(--text-sm);
+}
+
+.ledger-what .faint {
+  font-size: var(--text-xs);
+}
+
+.ledger-amount {
+  flex: 0 0 auto;
+  font-size: var(--text-sm);
+}
+
+/* --- Schedule --- */
+
+.event-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.month-switch {
+  margin-bottom: var(--space-5);
+}
+
+.month-switch input {
+  width: auto;
+}

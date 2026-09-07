@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { useMutationState } from '@tanstack/react-query';
 import MealPlan from './routes/MealPlan';
+import Shopping from './routes/Shopping';
+import Recipes from './routes/Recipes';
+import Expenses from './routes/Expenses';
+import Errands from './routes/Errands';
+import Schedule from './routes/Schedule';
+import Apartment from './routes/Apartment';
 import Diagnostics from './routes/Diagnostics';
 import { useChangePolling } from './lib/hooks';
 import { HOUSEHOLD, type Person } from './domain/household';
@@ -69,9 +75,9 @@ export default function App() {
       <main className="shell-main">
         <Routes>
           <Route path="/" element={<MealPlan />} />
-          <Route path="/shopping" element={<Placeholder title="Inköp" />} />
-          <Route path="/recipes" element={<Placeholder title="Recept" />} />
-          <Route path="/expenses" element={<Placeholder title="Utgifter" />} />
+          <Route path="/shopping" element={<Shopping />} />
+          <Route path="/recipes" element={<Recipes />} />
+          <Route path="/expenses" element={<Expenses />} />
           <Route
             path="/more"
             element={
@@ -84,9 +90,9 @@ export default function App() {
               />
             }
           />
-          <Route path="/errands" element={<Placeholder title="Sysslor" />} />
-          <Route path="/schedule" element={<Placeholder title="Kalender" />} />
-          <Route path="/apartment" element={<Placeholder title="Hemmet" />} />
+          <Route path="/errands" element={<Errands />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/apartment" element={<Apartment />} />
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="*" element={<Placeholder title="Hittades inte" />} />
         </Routes>

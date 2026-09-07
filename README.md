@@ -106,4 +106,5 @@ the comma is a decimal separator and thousands are grouped with spaces.
 
 - **Add a gate before deploying publicly** — see the security note above.
 - Placeholder icons in `public/icons/` are still placeholders.
-- Shopping, recipes, expenses and the simpler three screens are not built yet.
+- Recipe photo upload is wired in the API but has no UI yet.
+- Errand recurrence is stored but not yet acted on.
