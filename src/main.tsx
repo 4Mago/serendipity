@@ -3,13 +3,10 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from './App';
-import { initIdentity } from './lib/identity';
 import { persister, queryClient } from './lib/queryClient';
 import './index.css';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
-
-initIdentity();
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Missing #root');

@@ -1,5 +1,5 @@
 import type { CollectionMap, CollectionName } from '../domain/types';
-import { getToken } from './identity';
+import { getWhoami } from './whoami';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -16,10 +16,19 @@ export interface ListParams {
   to?: string;
 }
 
+/**
+ * Identifies the device's chosen person so the server can stamp records with
+ * it. Purely informational — it is client-supplied and unverified, and must
+ * never be treated as authentication.
+ */
+function whoamiHeader(headers: Headers): void {
+  const person = getWhoami();
+  if (person) headers.set('x-hemma-person', person.id);
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = await getToken();
   const headers = new Headers(init.headers);
-  if (token) headers.set('authorization', `Bearer ${token}`);
+  whoamiHeader(headers);
   if (init.body && !headers.has('content-type')) {
     headers.set('content-type', 'application/json');
   }
@@ -79,9 +88,8 @@ export const api = {
     ),
 
   upload: async (file: File) => {
-    const token = await getToken();
     const headers = new Headers({ 'content-type': file.type });
-    if (token) headers.set('authorization', `Bearer ${token}`);
+    whoamiHeader(headers);
 
     const response = await fetch('/api/uploads', { method: 'POST', headers, body: file });
     if (!response.ok) throw new ApiError(response.status, 'Upload failed');

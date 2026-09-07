@@ -1,5 +1,10 @@
 # Marcus & Clara — Household PWA
 
+> **Changed since approval:** Netlify Identity was removed at the user's
+> request after the login could not be set up. The app now has no
+> authentication at all — see the security note in `README.md`. Everything
+> else below still holds.
+
 ## Context
 
 Marcus and Clara want one shared app to run their couple life: food shopping list, colourful

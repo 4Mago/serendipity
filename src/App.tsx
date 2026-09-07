@@ -4,7 +4,8 @@ import { useMutationState } from '@tanstack/react-query';
 import MealPlan from './routes/MealPlan';
 import Diagnostics from './routes/Diagnostics';
 import { useChangePolling } from './lib/hooks';
-import { currentUser, logout, onAuthChange, openLogin } from './lib/identity';
+import { HOUSEHOLD, type Person } from './domain/household';
+import { clearWhoami, getWhoami, setWhoami } from './lib/whoami';
 import { setupServiceWorker } from './lib/pwa';
 
 /** Five is the most a bottom bar can hold before targets get too small. */
@@ -17,20 +18,37 @@ const TABS = [
 ];
 
 export default function App() {
-  const [user, setUser] = useState(() => currentUser());
+  const [person, setPerson] = useState<Person | null>(() => getWhoami());
   const [applyUpdate, setApplyUpdate] = useState<(() => void) | null>(null);
 
-  useEffect(() => onAuthChange(setUser), []);
   useEffect(() => setupServiceWorker((apply) => setApplyUpdate(() => apply)), []);
 
-  if (!user) {
+  /*
+   * Not a login. The app has no accounts; this only records which of the two
+   * people is holding the phone, so records can show who added them.
+   */
+  if (!person) {
     return (
       <main className="gate">
         <h1>Hemma</h1>
-        <p className="label">Marcus &amp; Clara</p>
-        <button type="button" className="btn" onClick={openLogin}>
-          Logga in
-        </button>
+        <p className="label">Vem är du?</p>
+        <div className="who-picker">
+          {HOUSEHOLD.map((candidate) => (
+            <button
+              key={candidate.id}
+              type="button"
+              className="who"
+              style={{ '--who-colour': candidate.colour } as React.CSSProperties}
+              onClick={() => {
+                setWhoami(candidate);
+                setPerson(candidate);
+              }}
+            >
+              <span className="who-dot" />
+              {candidate.name}
+            </button>
+          ))}
+        </div>
       </main>
     );
   }
@@ -54,7 +72,18 @@ export default function App() {
           <Route path="/shopping" element={<Placeholder title="Inköp" />} />
           <Route path="/recipes" element={<Placeholder title="Recept" />} />
           <Route path="/expenses" element={<Placeholder title="Utgifter" />} />
-          <Route path="/more" element={<More />} />
+          <Route
+            path="/more"
+            element={
+              <More
+                person={person}
+                onSwitch={() => {
+                  clearWhoami();
+                  setPerson(null);
+                }}
+              />
+            }
+          />
           <Route path="/errands" element={<Placeholder title="Sysslor" />} />
           <Route path="/schedule" element={<Placeholder title="Kalender" />} />
           <Route path="/apartment" element={<Placeholder title="Hemmet" />} />
@@ -105,11 +134,12 @@ function SyncStatus() {
   );
 }
 
-function More() {
+function More({ person, onSwitch }: { person: Person; onSwitch: () => void }) {
   return (
     <section>
       <div className="page-head">
         <h2>Mer</h2>
+        <span className="label">{person.name}</span>
       </div>
       <div className="pick-list">
         {[
@@ -125,8 +155,8 @@ function More() {
         ))}
       </div>
       <div className="actions">
-        <button type="button" className="btn" onClick={logout}>
-          Logga ut
+        <button type="button" className="btn" onClick={onSwitch}>
+          Byt användare
         </button>
       </div>
     </section>

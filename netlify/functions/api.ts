@@ -3,7 +3,7 @@ import { getStore } from '@netlify/blobs';
 import { isCollection } from '../../src/domain/collections';
 import { buildShoppingList, excludeExisting } from '../../src/domain/shopping';
 import type { MealEntry, Recipe, ShoppingItem } from '../../src/domain/types';
-import { requireUser, type AuthedUser } from '../lib/auth';
+import { readAuthor, type RecordAuthor } from '../lib/auth';
 import { assertValidId, error, HttpError, json, readJsonBody } from '../lib/http';
 import {
   createMany,
@@ -20,7 +20,7 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 export default async (request: Request): Promise<Response> => {
   try {
-    const user = await requireUser();
+    const user = readAuthor(request);
     const url = new URL(request.url);
     const segments = url.pathname.replace(/^\/api\/?/, '').split('/').filter(Boolean);
 
@@ -48,7 +48,7 @@ async function handleCollection(
   request: Request,
   url: URL,
   segments: string[],
-  user: AuthedUser,
+  user: RecordAuthor,
 ): Promise<Response> {
   const [name, id] = segments;
   if (!name || !isCollection(name)) return error(404, 'Unknown collection');
@@ -95,7 +95,7 @@ async function handleCollection(
 }
 
 /** Records who made a change, so the UI can show it. Carries no permissions. */
-function stamp(body: Record<string, unknown>, user: AuthedUser): Record<string, unknown> {
+function stamp(body: Record<string, unknown>, user: RecordAuthor): Record<string, unknown> {
   return { ...body, addedBy: body.addedBy ?? user.id };
 }
 
@@ -104,7 +104,7 @@ function stamp(body: Record<string, unknown>, user: AuthedUser): Record<string, 
  * servings planned, merge equivalent ingredients, drop anything already waiting
  * on the list, and write the remainder.
  */
-async function handleGenerateShopping(request: Request, user: AuthedUser): Promise<Response> {
+async function handleGenerateShopping(request: Request, user: RecordAuthor): Promise<Response> {
   if (request.method !== 'POST') return error(405, 'Method not allowed');
 
   const body = await readJsonBody(request);

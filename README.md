@@ -10,7 +10,7 @@ built and tested. The screens are placeholders until the visual design lands
 ## Stack
 
 Vite + React + TypeScript · `vite-plugin-pwa` · Netlify Functions ·
-Netlify Blobs · Netlify Identity · TanStack Query
+Netlify Blobs · TanStack Query
 
 There is no database. Storage is Netlify Blobs, one blob per entity, reached
 through a Functions API — see "Design notes" below for why that shape.
@@ -23,21 +23,17 @@ through a Functions API — see "Design notes" below for why that shape.
    npx netlify init
    ```
 
-2. **Enable Identity** in the Netlify UI, then set registration to
-   **invite-only** and invite both accounts. This is the entire authorisation
-   model: only two people can ever hold an account, so anything in the site's
-   blob stores belongs to both of them.
-
-3. **Run locally.** `netlify dev` serves Vite and the functions together on
+2. **Run locally.** `netlify dev` serves Vite and the functions together on
    port 8888 — use that, not `vite` alone, or `/api/*` will 404.
    ```
    npm install
    npm run dev
    ```
 
-4. **Deploy.** `npm run build && npx netlify deploy --prod`
+3. **Deploy.** `npm run build && npx netlify deploy --prod` — but read the
+   security note below first.
 
-5. **Install on both phones** from the deployed HTTPS URL. On iOS this must be
+4. **Install on both phones** from the deployed HTTPS URL. On iOS this must be
    done from Safari via Share → Add to Home Screen.
 
 ## Scripts
@@ -51,14 +47,28 @@ through a Functions API — see "Design notes" below for why that shape.
 | `npm test` | Domain logic tests |
 | `npm run icons` | Regenerate placeholder PWA icons |
 
+## ⚠️ There is no authentication
+
+The app has no login. Every `/api/*` route is open to anyone who can reach it,
+and the `x-hemma-person` header that records who added something is
+client-supplied and unverified — a display hint, not a credential.
+
+Locally this is fine. **On a public deploy it means anyone with the URL can
+read and change everything**: the shopping list, the budget, the calendar.
+
+The smallest fix is a shared passphrase checked against an environment
+variable. Every route already funnels through `readAuthor()` in
+`netlify/lib/auth.ts`, so the gate goes in one function and nothing else has
+to change.
+
 ## Layout
 
 ```
 src/domain/     Pure logic and types. Shared by client and functions; no
                 browser or Node APIs. This is where the tests live.
-src/lib/        Client data layer — API client, query cache, auth, hooks.
+src/lib/        Client data layer — API client, query cache, hooks.
 src/routes/     Screens. Currently placeholders plus a diagnostics harness.
-netlify/lib/    Blobs store, auth guard, HTTP helpers.
+netlify/lib/    Blobs store, request author, HTTP helpers.
 netlify/functions/api.ts   Single entry point for all /api/* routes.
 ```
 
@@ -94,9 +104,6 @@ the comma is a decimal separator and thousands are grouped with spaces.
 
 ## Known follow-ups
 
-- Recipe images are served through an authenticated function. Whether
-  `<img src="/api/uploads/…">` authenticates via the `nf_jwt` cookie needs
-  confirming on a real device; if not, Phase B fetches them as blob URLs.
-- `getUser()` resolves against the Identity API, costing one round trip per
-  request. Worth measuring before optimising.
-- Placeholder icons in `public/icons/` get replaced in Phase B.
+- **Add a gate before deploying publicly** — see the security note above.
+- Placeholder icons in `public/icons/` are still placeholders.
+- Shopping, recipes, expenses and the simpler three screens are not built yet.
